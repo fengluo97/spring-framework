@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.fengluo.learn'
+version = '5.2.26.BUILD-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile(project(":spring-core"))
+    compile(project(":spring-aop"))
+    compile(project(":spring-beans"))
+    compile(project(":spring-context"))
+    optional("org.aspectj:aspectjweaver")
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
