@@ -96,8 +96,16 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * @param basePackages the packages to scan for component classes
 	 */
 	public AnnotationConfigApplicationContext(String... basePackages) {
+		// 构造方法，初始化 AnnotatedBeanDefinitionReader 与 ClassPathBeanDefinitionScanner，并且将 DefaultListableBeanFactory 赋值给 beanFactory
 		this();
+
+		// 【重要方法】对传入的 basePackages 进行扫描，扫描完成后，通过类信息得到最终的 BeanDefinition 集合，并放入了 DefaultListableBeanFactory 的 beanDefinitionMap
+		// 【重要类】DefaultListableBeanFactory，其成员变量：
+		//   1、beanDefinitionMap，Map 存储了 beanName -> beanDefinition
+		//   2、singletonObjects，继承自 DefaultSingletonBeanRegistry，也就是IOC的单例池
 		scan(basePackages);
+
+		// 【重要方法】启动Spring，完成Spring容器的初始化操作，包含bean的实例化、属性注入，将bean保存到Spring容器中等等
 		refresh();
 	}
 

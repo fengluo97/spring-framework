@@ -103,6 +103,7 @@ class ApplicationContextAwareProcessor implements BeanPostProcessor {
 		return bean;
 	}
 
+	// 【重要方法】如果这个 bean 实现了相关的 Aware 接口，就为它进行回调，比如 ApplicationContextAware 进行 setApplicationContext
 	private void invokeAwareInterfaces(Object bean) {
 		if (bean instanceof EnvironmentAware) {
 			((EnvironmentAware) bean).setEnvironment(this.applicationContext.getEnvironment());

@@ -269,30 +269,40 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * @param basePackages the packages to check for annotated classes
 	 * @return set of beans registered if any for tooling registration purposes (never {@code null})
 	 */
+	// spring源码中真正做事情的方法都有一个do前缀
 	protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
 		Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
+		// 其实源码里的逻辑也没那么恐怖，很多时候还是得看我 for 循环，扫描每个 basePackages 中的 bean
 		for (String basePackage : basePackages) {
+			// 获取所有的候选 bean
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
+			// 对每个候选的 bean：
 			for (BeanDefinition candidate : candidates) {
+				// 1、解析作用域
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
 				candidate.setScope(scopeMetadata.getScopeName());
+				// 2、获取beanName，查看是否有指定beanName，否则使用类名首字母小写
 				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
 				if (candidate instanceof AbstractBeanDefinition) {
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
 				if (candidate instanceof AnnotatedBeanDefinition) {
+					// 进一步完善bean信息
 					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
 				}
+				// 校验该 beanName 是否已经存在
 				if (checkCandidate(beanName, candidate)) {
 					BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
 					definitionHolder =
 							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 					beanDefinitions.add(definitionHolder);
+					// 【重要方法】将每个最终的 beanDefinitions 注册到 beanFactory 中，也就是 DefaultListableBeanFactory 的 beanDefinitionMap 中
 					registerBeanDefinition(definitionHolder, this.registry);
 				}
 			}
 		}
+		// 返回最终的 beanDefinitions
 		return beanDefinitions;
 	}
 
