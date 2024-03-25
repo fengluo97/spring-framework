@@ -74,14 +74,16 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	private static final int SUPPRESSED_EXCEPTIONS_LIMIT = 100;
 
 
-	// 三级缓存
+	// 一级缓存
 	/** Cache of singleton objects: bean name to bean instance. */
 	private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
 
 	/** Cache of singleton factories: bean name to ObjectFactory. */
+	// 三级缓存
 	private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
 
 	/** Cache of early singleton objects: bean name to bean instance. */
+	// 二级缓存
 	private final Map<String, Object> earlySingletonObjects = new ConcurrentHashMap<>(16);
 
 	/** Set of registered singletons, containing the bean names in registration order. */
@@ -232,6 +234,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					this.suppressedExceptions = new LinkedHashSet<>();
 				}
 				try {
+					// 创建对象
 					singletonObject = singletonFactory.getObject();
 					newSingleton = true;
 				}
@@ -255,8 +258,10 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					if (recordSuppressedExceptions) {
 						this.suppressedExceptions = null;
 					}
+					// 创建完成后，做一些判断操作，与创建过程关系不大
 					afterSingletonCreation(beanName);
 				}
+				// 添加到 beanFactory 缓存中去，同时删除二级三级缓存
 				if (newSingleton) {
 					addSingleton(beanName, singletonObject);
 				}
@@ -454,6 +459,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		if (dependentBeans.contains(dependentBeanName)) {
 			return true;
 		}
+		// 遍历该bean所有的依赖bean
 		for (String transitiveDependency : dependentBeans) {
 			if (alreadySeen == null) {
 				alreadySeen = new HashSet<>();

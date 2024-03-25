@@ -204,6 +204,7 @@ public abstract class BeanUtils {
 						argsWithDefaultValues[i] = args[i];
 					}
 				}
+				// 通过构造器，利用反射创建对象
 				return ctor.newInstance(argsWithDefaultValues);
 			}
 		}

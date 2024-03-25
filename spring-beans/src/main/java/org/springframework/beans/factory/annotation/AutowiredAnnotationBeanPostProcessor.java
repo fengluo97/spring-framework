@@ -396,6 +396,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 	public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) {
 		InjectionMetadata metadata = findAutowiringMetadata(beanName, bean.getClass(), pvs);
 		try {
+			// 【反射】通过反射进行属性注入
 			metadata.inject(bean, beanName, pvs);
 		}
 		catch (BeanCreationException ex) {
@@ -470,6 +471,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		do {
 			final List<InjectionMetadata.InjectedElement> currElements = new ArrayList<>();
 
+			// 查找 Autowire 属性
 			ReflectionUtils.doWithLocalFields(targetClass, field -> {
 				MergedAnnotation<?> ann = findAutowiredAnnotation(field);
 				if (ann != null) {
@@ -489,6 +491,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 				if (!BridgeMethodResolver.isVisibilityBridgeMethodPair(method, bridgedMethod)) {
 					return;
 				}
+				// 查找 Autowire 方法
 				MergedAnnotation<?> ann = findAutowiredAnnotation(bridgedMethod);
 				if (ann != null && method.equals(ClassUtils.getMostSpecificMethod(method, clazz))) {
 					if (Modifier.isStatic(method.getModifiers())) {
