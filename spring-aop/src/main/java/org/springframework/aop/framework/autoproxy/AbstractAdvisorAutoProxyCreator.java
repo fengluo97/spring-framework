@@ -75,6 +75,8 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	protected Object[] getAdvicesAndAdvisorsForBean(
 			Class<?> beanClass, String beanName, @Nullable TargetSource targetSource) {
 
+		// 查找符合条件的增强，此时所有的 Advisor 已经在 before实例化时的shouldSkip中初始化完成
+		// 对于 beanClass 的所有方法，包含父类、接口，只要有一个方法命中了代理 Advisor 则就要创建代理类
 		List<Advisor> advisors = findEligibleAdvisors(beanClass, beanName);
 		if (advisors.isEmpty()) {
 			return DO_NOT_PROXY;
@@ -93,7 +95,9 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 * @see #extendAdvisors
 	 */
 	protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName) {
+		// 获取容器中的所有增强
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
+		// 验证 beanClass 是否可以被代理
 		List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
 		extendAdvisors(eligibleAdvisors);
 		if (!eligibleAdvisors.isEmpty()) {

@@ -47,6 +47,7 @@ public abstract class AopConfigUtils {
 
 	/**
 	 * The bean name of the internally managed auto-proxy creator.
+	 * 内部管理的自动代理创建者的 Bean 名称
 	 */
 	public static final String AUTO_PROXY_CREATOR_BEAN_NAME =
 			"org.springframework.aop.config.internalAutoProxyCreator";
@@ -114,6 +115,8 @@ public abstract class AopConfigUtils {
 		}
 	}
 
+	// 这里的 cls 即 AnnotationAwareAspectJAutoProxyCreator
+	// 就是为了向 ioc 中注册 AnnotationAwareAspectJAutoProxyCreator 的 beanDefinition
 	@Nullable
 	private static BeanDefinition registerOrEscalateApcAsRequired(
 			Class<?> cls, BeanDefinitionRegistry registry, @Nullable Object source) {
@@ -132,6 +135,7 @@ public abstract class AopConfigUtils {
 			return null;
 		}
 
+		// 注册 AnnotationAwareAspectJAutoProxyCreator 到容器中，此类负责基于注解的AOP动态代理实现
 		RootBeanDefinition beanDefinition = new RootBeanDefinition(cls);
 		beanDefinition.setSource(source);
 		beanDefinition.getPropertyValues().add("order", Ordered.HIGHEST_PRECEDENCE);

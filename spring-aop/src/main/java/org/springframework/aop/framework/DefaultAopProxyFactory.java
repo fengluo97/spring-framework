@@ -50,6 +50,8 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 
 	@Override
 	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
+		// JDK 动态代理必须指定业务代理接口
+		// 如果没有指定接口则使用 Cglib
 		if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
 			Class<?> targetClass = config.getTargetClass();
 			if (targetClass == null) {
@@ -59,9 +61,11 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 			if (targetClass.isInterface() || Proxy.isProxyClass(targetClass)) {
 				return new JdkDynamicAopProxy(config);
 			}
+			// 返回 cglib 代理类
 			return new ObjenesisCglibAopProxy(config);
 		}
 		else {
+			// 返回 jdk 动态代理类
 			return new JdkDynamicAopProxy(config);
 		}
 	}

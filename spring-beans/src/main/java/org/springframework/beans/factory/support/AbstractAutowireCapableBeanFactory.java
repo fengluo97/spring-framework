@@ -1834,6 +1834,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		Object wrappedBean = bean;
 		if (mbd == null || !mbd.isSynthetic()) {
 			// 执行 spring 当中的内置处理器——xxxPostProcessor-------@PostConstruct
+			// 此处进行了 aop 的替换，将 bean 替换成了 代理类的bean
 			wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
 		}
 

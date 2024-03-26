@@ -83,12 +83,14 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 	public List<Advisor> buildAspectJAdvisors() {
 		List<String> aspectNames = this.aspectBeanNames;
 
+		// 只有在第一次运行时才会为true
 		if (aspectNames == null) {
 			synchronized (this) {
 				aspectNames = this.aspectBeanNames;
 				if (aspectNames == null) {
 					List<Advisor> advisors = new ArrayList<>();
 					aspectNames = new ArrayList<>();
+					// 1、获取ioc容器中所有Bean名称
 					String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 							this.beanFactory, Object.class, true, false);
 					for (String beanName : beanNames) {
@@ -101,14 +103,18 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 						if (beanType == null) {
 							continue;
 						}
+						// 2、判断 bean class 上是否有 @Aspect 注解
 						if (this.advisorFactory.isAspect(beanType)) {
 							aspectNames.add(beanName);
 							AspectMetadata amd = new AspectMetadata(beanType, beanName);
 							if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
+								// 创建 factory 对象，这个对象里包含了beanFactory与@Aspect的beanName
 								MetadataAwareAspectInstanceFactory factory =
 										new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
+								// 3、【重要方法】解析切面类的所有增强方法
 								List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
 								if (this.beanFactory.isSingleton(beanName)) {
+									// 将解析的Bean名称及类上的增强缓存起来,每个Bean只解析一次
 									this.advisorsCache.put(beanName, classAdvisors);
 								}
 								else {
@@ -129,6 +135,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 							}
 						}
 					}
+					// 对属性赋值，之后就不再运行了
 					this.aspectBeanNames = aspectNames;
 					return advisors;
 				}
@@ -140,6 +147,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 		}
 		List<Advisor> advisors = new ArrayList<>();
 		for (String aspectName : aspectNames) {
+			// 从缓存中获取当前Bean的切面实例，如果不为空，则指明当前Bean的Class标识了@Aspect，且有切面方法
 			List<Advisor> cachedAdvisors = this.advisorsCache.get(aspectName);
 			if (cachedAdvisors != null) {
 				advisors.addAll(cachedAdvisors);
