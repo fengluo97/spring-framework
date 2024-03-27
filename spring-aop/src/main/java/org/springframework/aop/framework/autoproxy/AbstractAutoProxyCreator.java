@@ -241,7 +241,8 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		return wrapIfNecessary(bean, beanName, cacheKey);
 	}
 
-	// 实例化之前
+	// 实例化之前执行，在这里进行了所有切面类的加载，将每个通知构建成 Advisor 实例
+	// 不同的切面类型，最终会封装为不同的 advice，advice 通知是 advisor 的一个成员变量
 	@Override
 	public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
 		Object cacheKey = getCacheKey(beanClass, beanName);
@@ -296,7 +297,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * identified as one to proxy by the subclass.
 	 * @see #getAdvicesAndAdvisorsForBean
 	 */
-	// 初始化之后
+	// 初始化之后执行，创建代理对象，根据是否实现了接口来选择使用JDK代理还是Cglib，可应用于当前bean的List<Advisor>也会封装进代理对象中
 	@Override
 	public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) {
 		if (bean != null) {

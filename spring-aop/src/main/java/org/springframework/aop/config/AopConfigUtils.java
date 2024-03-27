@@ -116,7 +116,7 @@ public abstract class AopConfigUtils {
 	}
 
 	// 这里的 cls 即 AnnotationAwareAspectJAutoProxyCreator
-	// 就是为了向 ioc 中注册 AnnotationAwareAspectJAutoProxyCreator 的 beanDefinition
+	// 该方法向 ioc 中注册 AnnotationAwareAspectJAutoProxyCreator 的 beanDefinition
 	@Nullable
 	private static BeanDefinition registerOrEscalateApcAsRequired(
 			Class<?> cls, BeanDefinitionRegistry registry, @Nullable Object source) {

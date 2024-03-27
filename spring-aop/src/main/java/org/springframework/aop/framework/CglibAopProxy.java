@@ -157,6 +157,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 	}
 
 	@Override
+	// cglib 获取代理对象
 	public Object getProxy(@Nullable ClassLoader classLoader) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Creating CGLIB proxy: " + this.advised.getTargetSource());
@@ -176,6 +177,8 @@ class CglibAopProxy implements AopProxy, Serializable {
 			}
 
 			// Validate the class, writing log messages as necessary.
+			// 【重要方法】
+			// 静态方法、私有方法、缺省方法、final 方法都不可以被代理，该方法会被 cglib 忽略
 			validateClassIfNecessary(proxySuperClass, classLoader);
 
 			// Configure CGLIB Enhancer...
@@ -192,6 +195,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 			enhancer.setNamingPolicy(SpringNamingPolicy.INSTANCE);
 			enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(classLoader));
 
+			// 获取所有的代理拦截器
 			Callback[] callbacks = getCallbacks(rootClass);
 			Class<?>[] types = new Class<?>[callbacks.length];
 			for (int x = 0; x < types.length; x++) {
@@ -203,6 +207,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 			enhancer.setCallbackTypes(types);
 
 			// Generate the proxy class and create a proxy instance.
+			// 生成代理对象
 			return createProxyClassAndInstance(enhancer, callbacks);
 		}
 		catch (CodeGenerationException | IllegalArgumentException ex) {
@@ -257,7 +262,9 @@ class CglibAopProxy implements AopProxy, Serializable {
 			Method[] methods = proxySuperClass.getDeclaredMethods();
 			for (Method method : methods) {
 				int mod = method.getModifiers();
+				// 非静态、非私有
 				if (!Modifier.isStatic(mod) && !Modifier.isPrivate(mod)) {
+					// 非 final
 					if (Modifier.isFinal(mod)) {
 						if (logger.isInfoEnabled() && implementsInterface(method, ifcs)) {
 							logger.info("Unable to proxy interface-implementing method [" + method + "] because " +
@@ -269,6 +276,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 									"might lead to NPEs against uninitialized fields in the proxy instance.");
 						}
 					}
+					// default 也不行
 					else if (logger.isDebugEnabled() && !Modifier.isPublic(mod) && !Modifier.isProtected(mod) &&
 							proxyClassLoader != null && proxySuperClass.getClassLoader() != proxyClassLoader) {
 						logger.debug("Method [" + method + "] is package-visible across different ClassLoaders " +
@@ -277,6 +285,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 					}
 				}
 			}
+			// 对父类进行判断
 			doValidateClass(proxySuperClass.getSuperclass(), proxyClassLoader, ifcs);
 		}
 	}
@@ -288,6 +297,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 		boolean isStatic = this.advised.getTargetSource().isStatic();
 
 		// Choose an "aop" interceptor (used for AOP calls).
+		// @Before、@Around、@After等切面方法将在DynamicAdvisedInterceptor进行调用
 		Callback aopInterceptor = new DynamicAdvisedInterceptor(this.advised);
 
 		// Choose a "straight to target" interceptor. (used for calls that are
@@ -677,6 +687,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 
 		@Override
 		@Nullable
+		// 【重要方法】cglib 通知方法的执行逻辑
 		public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
 			Object oldProxy = null;
 			boolean setProxyContext = false;
@@ -704,6 +715,8 @@ class CglibAopProxy implements AopProxy, Serializable {
 					retVal = invokeMethod(target, method, argsToUse, methodProxy);
 				}
 				else {
+					// 1. 创建执行器：new CglibMethodInvocation()
+					// 2. 执行拦截器链：CglibMethodInvocation#proceed
 					// We need to create a method invocation...
 					retVal = new CglibMethodInvocation(proxy, target, method, args, targetClass, chain, methodProxy).proceed();
 				}
