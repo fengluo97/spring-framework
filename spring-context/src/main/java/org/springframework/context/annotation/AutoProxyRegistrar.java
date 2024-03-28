@@ -56,6 +56,7 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
 	 * the same.
 	 */
 	@Override
+	// 异曲同工之妙，就是注册 InfrastructureAdvisorAutoProxyCreator 的 beanDefinition 到 beanDefinitionMap 中去
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 		boolean candidateFound = false;
 		Set<String> annTypes = importingClassMetadata.getAnnotationTypes();
