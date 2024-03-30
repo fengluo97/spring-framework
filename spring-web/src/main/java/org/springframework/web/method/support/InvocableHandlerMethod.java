@@ -131,10 +131,12 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	public Object invokeForRequest(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
 
+		// 【重要方法】解析参数
 		Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Arguments: " + Arrays.toString(args));
 		}
+		// 反射调用方法
 		return doInvoke(args);
 	}
 
@@ -147,6 +149,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	protected Object[] getMethodArgumentValues(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
 
+		// 通过反射获取方法上的所有参数
 		MethodParameter[] parameters = getMethodParameters();
 		if (ObjectUtils.isEmpty(parameters)) {
 			return EMPTY_ARGS;
@@ -154,6 +157,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
 		Object[] args = new Object[parameters.length];
 		for (int i = 0; i < parameters.length; i++) {
+			// 一次处理每个参数
 			MethodParameter parameter = parameters[i];
 			parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);
 			args[i] = findProvidedArgument(parameter, providedArgs);
@@ -164,6 +168,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 				throw new IllegalStateException(formatArgumentError(parameter, "No suitable resolver"));
 			}
 			try {
+				// 进行参数解析，支持二十多种参数解析绑定，在这里进行了 beforeBodyRead 和 afterBodyRead
 				args[i] = this.resolvers.resolveArgument(parameter, mavContainer, request, this.dataBinderFactory);
 			}
 			catch (Exception ex) {

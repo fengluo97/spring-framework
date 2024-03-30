@@ -11,11 +11,13 @@ repositories {
 
 dependencies {
     implementation project(path: ':spring-jdbc')
+    implementation project(path: ':spring-webmvc')
     compile(project(":spring-core"))
     compile(project(":spring-aop"))
     compile(project(":spring-beans"))
     compile(project(":spring-context"))
     optional("org.aspectj:aspectjweaver")
     optional("mysql:mysql-connector-java:5.1.48")
+    optional("org.apache.tomcat.embed:tomcat-embed-core")
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

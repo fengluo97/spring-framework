@@ -193,6 +193,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 		try {
 			message = new EmptyBodyCheckingHttpInputMessage(inputMessage);
 
+			// 扩展点 RequestBodyAdvice
 			for (HttpMessageConverter<?> converter : this.messageConverters) {
 				Class<HttpMessageConverter<?>> converterType = (Class<HttpMessageConverter<?>>) converter.getClass();
 				GenericHttpMessageConverter<?> genericConverter =

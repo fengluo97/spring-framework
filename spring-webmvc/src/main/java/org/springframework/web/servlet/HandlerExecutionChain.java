@@ -144,11 +144,15 @@ public class HandlerExecutionChain {
 	 * that this interceptor has already dealt with the response itself.
 	 */
 	boolean applyPreHandle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// 获取所有的拦截器
 		HandlerInterceptor[] interceptors = getInterceptors();
 		if (!ObjectUtils.isEmpty(interceptors)) {
 			for (int i = 0; i < interceptors.length; i++) {
+				// 遍历执行 preHandle 方法
 				HandlerInterceptor interceptor = interceptors[i];
 				if (!interceptor.preHandle(request, response, this.handler)) {
+					// afterCompletion 指的是handler执行完成之后的操作，不论是否成功，都会执行
+					// 失败了，还会继续执行 HandlerInterceptor#afterCompletion 方法
 					triggerAfterCompletion(request, response, null);
 					return false;
 				}

@@ -575,6 +575,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 						// the root application context (if any; may be null) as the parent
 						cwac.setParent(rootContext);
 					}
+					// 【重要方法】 DispatcherServlet 随着 tomcat 的生命周期，在 init 时会 refresh context
 					configureAndRefreshWebApplicationContext(cwac);
 				}
 			}
@@ -596,6 +597,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			// support or the context injected at construction time had already been
 			// refreshed -> trigger initial onRefresh manually here.
 			synchronized (this.onRefreshMonitor) {
+				// 收到 refresh 完成事件，初始化 MVC 相关 bena
 				onRefresh(wac);
 			}
 		}
@@ -699,6 +701,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 		postProcessWebApplicationContext(wac);
 		applyInitializers(wac);
+		// 刷新 ioc 容器
 		wac.refresh();
 	}
 
@@ -872,6 +875,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * Override the parent class implementation in order to intercept PATCH requests.
 	 */
 	@Override
+	// 【重要方法】servlet 规范的 service 方法，负责处理http请求
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
@@ -987,10 +991,11 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 */
 	protected final void processRequest(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+		// 记录开始时间
 		long startTime = System.currentTimeMillis();
 		Throwable failureCause = null;
 
+		// 记录当前线程的信息
 		LocaleContext previousLocaleContext = LocaleContextHolder.getLocaleContext();
 		LocaleContext localeContext = buildLocaleContext(request);
 
@@ -1003,6 +1008,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		initContextHolders(request, localeContext, requestAttributes);
 
 		try {
+			// 处理逻辑，DispatcherServlet 入口
 			doService(request, response);
 		}
 		catch (ServletException | IOException ex) {

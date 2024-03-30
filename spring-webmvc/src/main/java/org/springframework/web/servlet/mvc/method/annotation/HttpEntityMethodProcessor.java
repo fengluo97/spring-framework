@@ -216,6 +216,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 		}
 
 		// Try even with null body. ResponseBodyAdvice could get involved.
+		// 将响应体数据写入响应体中，这里会执行 beforeBodyWrite 方法
 		writeWithMessageConverters(responseEntity.getBody(), returnType, inputMessage, outputMessage);
 
 		// Ensure headers are flushed even if no body was written.

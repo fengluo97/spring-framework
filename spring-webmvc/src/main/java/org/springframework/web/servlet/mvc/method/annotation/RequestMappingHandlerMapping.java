@@ -251,11 +251,15 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	 */
 	@Override
 	@Nullable
+	// 【重要方法】解析 @RequestMapping 注解，封装 RequestMappingInfo
 	protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
+		// 处理方法上的 @RequestMapping
 		RequestMappingInfo info = createRequestMappingInfo(method);
 		if (info != null) {
+			// 处理类上的 @RequestMapping
 			RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);
 			if (typeInfo != null) {
+				// 合并方法与类上的 @RequestMapping 路径，如类的 @RequestMapping("/test")，方法上的 @RequestMapping("/hello")，合并后的结果为 /test/hello
 				info = typeInfo.combine(info);
 			}
 			String prefix = getPathPrefix(handlerType);

@@ -361,10 +361,12 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	@Override
 	@Nullable
 	protected HandlerMethod getHandlerInternal(HttpServletRequest request) throws Exception {
+		// 查找请求url
 		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
 		request.setAttribute(LOOKUP_PATH, lookupPath);
 		this.mappingRegistry.acquireReadLock();
 		try {
+			// 根据请求查找handler
 			HandlerMethod handlerMethod = lookupHandlerMethod(lookupPath, request);
 			return (handlerMethod != null ? handlerMethod.createWithResolvedBean() : null);
 		}
@@ -385,6 +387,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	@Nullable
 	protected HandlerMethod lookupHandlerMethod(String lookupPath, HttpServletRequest request) throws Exception {
 		List<Match> matches = new ArrayList<>();
+		// 先从urlLookup中找，urlLookup是一个map，key是url，value是LinkedList<RequestMappingInfo>
 		List<T> directPathMatches = this.mappingRegistry.getMappingsByUrl(lookupPath);
 		if (directPathMatches != null) {
 			addMatchingMappings(directPathMatches, matches, request);
@@ -394,6 +397,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			addMatchingMappings(this.mappingRegistry.getMappings().keySet(), matches, request);
 		}
 
+		// 找到最佳匹配的mapping,返回其对应的HandlerMethod
 		if (!matches.isEmpty()) {
 			Match bestMatch = matches.get(0);
 			if (matches.size() > 1) {
@@ -411,6 +415,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 					Method m1 = bestMatch.handlerMethod.getMethod();
 					Method m2 = secondBestMatch.handlerMethod.getMethod();
 					String uri = request.getRequestURI();
+					// 找到了两个 url，抛异常
 					throw new IllegalStateException(
 							"Ambiguous handler methods mapped for '" + uri + "': {" + m1 + ", " + m2 + "}");
 				}
